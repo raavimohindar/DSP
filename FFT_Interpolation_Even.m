@@ -1,4 +1,4 @@
-N = 16;
+N = 8;
 M = 128;
 
 n=0:N-1;
@@ -23,7 +23,7 @@ y = 1/(N) * ifft(Y, M);
 
 t = linspace(0, N, M);
 
-xt = 0.5 + sinc(t-5)+ sinc(t-6)+ sinc(t-7)+sinc(t-8)+ sinc(t-9)+ sinc(t-10)+sinc(t-11);
+xt = 0.5 + sinc(t-3)+ sinc(t-4)+ sinc(t-5);
 
 
 subplot(212)
