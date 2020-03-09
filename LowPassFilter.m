@@ -1,35 +1,66 @@
 close all;
 clear all;
 
-z0                    = 50;
-A                     = importdata("sparameters_lowpass.dat");
-N                     = 512;      % number of samples in final result desired
+time            = 5; % in nano-seconds
+z0              = 50;
+A               = importdata("sparameters_lowpass.dat");
+M               = 2048;
 
-freq                  = A(:,1);
-realPart              = A(:,2);
-imagPart              = A(:,3);
+freq            = A(:,1);
+freq_neg        = -1.0*flip(freq);
 
-s11                   = realPart + imagPart*i; % In frequency domain
-s11_resamp            = resample(s11, N, 1);
+realPart        = A(:,2);
+imagPart        = A(:,3);
 
-s11_time_zero_pad     = [ifft(s11)' zeros(1,N-length(s11))];
-s11_freq_interpol     = fft(s11_time_zero_pad);
+s11_freq        = realPart + imagPart*i;
+s11_conj        = conj(flip(s11_freq));
 
-figure(1);
-subplot(311)
-plot(20*log10(abs(s11)));
-xlabel('Frequency (GHz)');
-ylabel('S11 (dB)');
+F               = [freq_neg(1:end-1)', freq(1),     freq(2:end)'];
+X               = [s11_conj(1:end-1)', s11_freq(1), s11_freq(2:end)']; 
+
+win             = (hamming(length(X)));
+
+freq_multip     = (X).*win';
+
+s11_time        = ifft(ifftshift(freq_multip));
+    
+z_in            = z0 * (1 + s11_time)./(1 - s11_time);
+
+t               = [0: time/length(s11_time): time-1/length(s11_time)];
+
+z_in_freq       = z0*(1+ (s11_freq))./(1- (s11_freq));
+freq_resamp     = resample(freq, M, length(freq));
+z_in_resamp     = resample(z_in, M, length(freq));
+
+figure(2)
+
+subplot(511)
+stem(freq, (abs(s11_freq)));
+axis([0 20])
+xlabel('f');
+ylabel('|S11|');
 grid on;
 
-subplot(312)
-plot(20*log10(abs(s11_resamp)));
-xlabel('Unknown');
-ylabel('S11 (dB)');
+subplot(512)
+stem(F, (abs(X)));
+axis([-freq(end) freq(end)])
+xlabel('f');
+ylabel('|S11|');
 grid on;
 
-subplot(313)
-plot(20*log10(abs(s11_freq_interpol)));
-xlabel('N');
-ylabel('S11 (dB)');
+subplot(513)
+plot(F, (abs(win)));
+ylabel('window');
+grid on;
+
+subplot(514)
+plot(t, (abs(s11_time)));
+xlabel('t');
+ylabel('|S11| (time)');
+axis([0 t(end) -10 10]);
+grid on;
+
+subplot(515)
+plot(abs(z_in));
+ylabel('Z_in');
 grid on;
