@@ -1,5 +1,5 @@
-N = 7;
-M = 128;
+N = 11;
+M = 64;
 
 n=0:N-1;
 x =  (n > N/4 & n < 3*(N-1)/4);
@@ -21,7 +21,7 @@ y = 1/(N) * ifft(Y, M);
 
 t = linspace(0, N, M);
 
-xt =  sinc(t-2) + sinc(t-3) + sinc(t-4);
+xt =  sinc(t-3) + sinc(t-4) + sinc(t-5) + sinc(t-6) + sinc(t-7);
 
 subplot(212)
 

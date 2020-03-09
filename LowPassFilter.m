@@ -1,61 +1,35 @@
 close all;
 clear all;
 
-N = 2048;
-z0 = 50;
+z0                    = 50;
+A                     = importdata("sparameters_lowpass.dat");
+N                     = 512;      % number of samples in final result desired
 
-sampling_factor = 6;
+freq                  = A(:,1);
+realPart              = A(:,2);
+imagPart              = A(:,3);
 
-A = importdata("sparameters_lowpass.dat");
+s11                   = realPart + imagPart*i; % In frequency domain
+s11_resamp            = resample(s11, N, 1);
 
-freq = A(:,1);
-realPart = A(:,2);
-imagPart = A(:,3);
-
-f_max = freq(end);
-fs = sampling_factor*f_max;
-
-input = realPart + imagPart*i;
-
-input_length = length(input);
-
-s11_input_symmetric = [input((input_length-1)/2+1: input_length)' input(1: (input_length-1)/2)'];
-
-%s11_input_symmetric = fftshift(input');
-
-X = ((padarray(s11_input_symmetric', (N/2 - ((input_length-1)/2)) , 0)))(1:N);
-
-window = 1/N * fftshift(fft(hamming(input_length), N));
-
-s11_time = N * ifft(ifftshift(X.*window), N);
-
-t = [0:1:length(s11_time)-1] / fs;
-
-z_in = z0*(1+s11_time)./(1-s11_time);
-
+s11_time_zero_pad     = [ifft(s11)' zeros(1,N-length(s11))];
+s11_freq_interpol     = fft(s11_time_zero_pad);
 
 figure(1);
-subplot(411)
-stem(20*log10(abs(X)));
+subplot(311)
+plot(20*log10(abs(s11)));
 xlabel('Frequency (GHz)');
 ylabel('S11 (dB)');
 grid on;
 
-subplot(412)
-plot(20*log10(abs(window)));
-xlabel('Hamming window')
+subplot(312)
+plot(20*log10(abs(s11_resamp)));
+xlabel('Unknown');
+ylabel('S11 (dB)');
 grid on;
 
-subplot(413)
-plot(t, (s11_time));
-xlabel('time (ns)')
-ylabel('S11 - linear');
-axis([0 5 -0.5 0.5])
-grid on;
-
-subplot(414)
-plot(t, abs(z_in));
-xlabel('time (ns)')
-ylabel('Z_{in}');
-axis([0 5 0 75])
+subplot(313)
+plot(20*log10(abs(s11_freq_interpol)));
+xlabel('N');
+ylabel('S11 (dB)');
 grid on;
