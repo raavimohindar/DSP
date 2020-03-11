@@ -1,3 +1,3 @@
-function [I]=FourierR(w,f,t)
+function [I]=FourierR(t,f,w)
 
-I = conj(FourierH(w,conj(f),t))/(2*pi);
+I = conj(FourierH(t,conj(f),w))/(2*pi);
