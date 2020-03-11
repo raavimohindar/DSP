@@ -1,7 +1,7 @@
 close all;
 clear all;
 
-time            = 5; % in nano-seconds
+time            = 2; % in nano-seconds
 z0              = 50;
 A               = importdata("sparameters_lowpass.dat");
 M               = 2048;
@@ -22,7 +22,7 @@ win             = (hamming(length(X)));
 
 freq_multip     = (X).*win';
 
-s11_time        = ifft(ifftshift(freq_multip));
+s11_time        = ifft(freq_multip, length(s11_freq));
     
 z_in            = z0 * (1 + s11_time)./(1 - s11_time);
 
@@ -54,13 +54,13 @@ ylabel('window');
 grid on;
 
 subplot(514)
-plot(t, (abs(s11_time)));
+plot(t, 20*log10(abs(s11_time)));
 xlabel('t');
 ylabel('|S11| (time)');
 axis([0 t(end) -10 10]);
 grid on;
 
 subplot(515)
-plot(abs(z_in));
+plot(t, abs(z_in));
 ylabel('Z_in');
 grid on;
