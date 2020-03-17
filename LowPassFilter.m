@@ -14,22 +14,21 @@ beta                = 0.46;
 
 freq                = A(:,1);
 freq_neg            = -1.0*flip(freq);
-F                   = [freq_neg(1:end-1)', freq(1),     freq(2:end)'];
+F                   = [freq_neg(1:end-1)', freq(1:end)'];
 
 s11_freq            = A(:,2) + A(:,3)*i;
-s11_conj            = conj(flip(s11_freq));
+s11_conj            = flip(conj(s11_freq));
 
-X                   = [s11_conj(1:end-1)', s11_freq(1), s11_freq(2:end)']; 
-
+X                   = [s11_conj(1:end-1)' s11_freq(1:end)']; 
 
 z_in_freq           = z0 * (1 + s11_freq)./(1 - s11_freq);
-z_in_conj           = conj(flip(z_in_freq));
+z_in_conj           = flip(conj(z_in_freq));
 
-Y                   = [z_in_conj(1:end-1)', z_in_freq(1), z_in_freq(2:end)']; 
+Y                   = [z_in_conj(1:end-1)' z_in_freq(1:end)']; 
 
 N                   = length(Y);
 
-window              = fft(hamming(32), N);
+window              = fft(hamming(256), N);
 
 s11_time            = ifft(X.*window');
 z_time              = ifft(Y.*window');
